@@ -4,19 +4,30 @@ import com.bankapp.config.MapperConfig;
 import com.bankapp.dto.request.AccountRequest;
 import com.bankapp.dto.response.AccountResponse;
 import com.bankapp.entity.Account;
+import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 
-import static org.mapstruct.MappingConstants.ComponentModel.SPRING;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 
-@Mapper(config = MapperConfig.class, componentModel = SPRING)
+import static com.bankapp.service.util.DefaultConstants.PERIOD;
+
+@Mapper(config = MapperConfig.class)
 public interface AccountMapper {
 
     @Mapping(target = "currentBalance", expression = "java(BigDecimal.ZERO)")
-    @Mapping(target = "active", defaultValue = "false")
-    @Mapping(target = "openDate", expression = "java(LocalDate.now())")
-    @Mapping(target = "closeDate", expression = "LocalDate.now().plusYears(DefaultConstants.PERIOD)")
+    @Mapping(target = "active", constant = "false")
     Account mapTo(AccountRequest accountRequest);
 
+    @Mapping(target = "openDate", expression = "java(LocalDateTime.ofInstant(account.getOpenDate()))")
+    @Mapping(target = "closeDate", expression = "java(LocalDateTime.ofInstant(account.getCloseDate()))")
     AccountResponse mapTo(Account account);
+
+    @AfterMapping
+    default void setData(@MappingTarget Account account) {
+        account.setOpenDate(Instant.now());
+        account.setCloseDate(Instant.now().plus(PERIOD, ChronoUnit.YEARS));
+    }
 }

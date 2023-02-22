@@ -17,4 +17,12 @@ public class ResponseExceptionHandler extends ResponseEntityExceptionHandler {
         );
         return new ResponseEntity<>(body, NOT_FOUND);
     }
+
+    @ExceptionHandler(MapperException.class)
+    public ResponseEntity<ErrorExtension> handleMapperException(Exception ex) {
+        ErrorExtension body = new ErrorExtension(
+                ex.getMessage()
+        );
+        return new ResponseEntity<>(body, NOT_FOUND);
+    }
 }

@@ -17,7 +17,7 @@ import lombok.ToString;
 import org.hibernate.annotations.GenericGenerator;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -54,10 +54,10 @@ public class Account {
     private BigDecimal currentBalance;
 
     @Column(name = "open_date")
-    private LocalDate openDate;
+    private Instant openDate;
 
     @Column(name = "close_date")
-    private LocalDate closeDate;
+    private Instant closeDate;
 
     @Column(name = "is_active")
     private boolean active;

@@ -8,16 +8,10 @@ package com.bankapp.exception;
 
 public class MapperException extends RuntimeException{
 
-    public MapperException() {
-        super();
-    }
-
     /**
      * This constructor need for MapStruct.
-     *
-     * @param message about mapping problem
      */
-    public MapperException(String message) {
-        super(message);
+    public MapperException() {
+        super("Mapping problem");
     }
 }

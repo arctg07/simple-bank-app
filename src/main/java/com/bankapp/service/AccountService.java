@@ -39,7 +39,7 @@ public interface AccountService {
      * @param id of card
      * @return {@link Account}
      */
-    Account getById(UUID id);
+    AccountResponse getById(String id);
 
     /**
      * Searching for {@link Account} by number
@@ -47,7 +47,7 @@ public interface AccountService {
      * @param number of account
      * @return {@link Account}
      */
-    Account getByNumber(String number);
+    AccountResponse getByNumber(String number);
 
     /**
      * Searching for {@link List<Account>} by client id
@@ -63,19 +63,19 @@ public interface AccountService {
      * @param clientId in cards
      * @return {@link List<Account>}
      */
-    List<Account> getAllActiveClientAccounts(UUID clientId);
+    List<AccountResponse> getAllActiveClientAccounts(String clientId);
 
     /**
      * change status to "inactive" by setting false to field boolean "active"
      *
      * @param id of account
      */
-    void terminateAccount(UUID id);
+    void terminateAccount(String id);
 
     /**
      * delete account by id
      *
      * @param id of account
      */
-    void delete(UUID id);
+    void delete(String id);
 }

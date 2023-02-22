@@ -8,17 +8,18 @@ import com.bankapp.exception.NotFoundException;
 import com.bankapp.mapper.AccountMapper;
 import com.bankapp.repository.AccountRepository;
 import com.bankapp.service.AccountService;
-import com.bankapp.service.util.DefaultConstants;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.UUID;
 
 import static com.bankapp.service.util.DefaultConstants.BALANCE;
+import static com.bankapp.service.util.DefaultConstants.PERIOD;
 
 @Service
 @RequiredArgsConstructor
@@ -32,7 +33,9 @@ public class AccountServiceImpl implements AccountService {
     @Override
     @Transactional
     public AccountResponse create(AccountRequest accountRequest) {
-        return null;
+        Account account = accountRepository.save(accountMapper.mapTo(accountRequest));
+
+        return accountMapper.mapTo(account);
     }
 
     @Override
@@ -42,36 +45,34 @@ public class AccountServiceImpl implements AccountService {
                 .clientId(clientId)
                 .currencyCode(product.getCurrencyCode())
                 .currentBalance(BALANCE)
-                .openDate(LocalDate.now())
-                .closeDate(LocalDate.now().plusYears(DefaultConstants.PERIOD))
+                .openDate(Instant.now())
+                .closeDate(Instant.now().plus(PERIOD, ChronoUnit.YEARS))
                 .active(false)
                 .build();
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Account getById(UUID id) {
-        return accountRepository.findById(id).orElseThrow(
-                () -> new NotFoundException(Account.class, id)
-        );
+    public AccountResponse getById(String id) {
+        Account account = getBy(UUID.fromString(id));
+
+        return accountMapper.mapTo(account);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Account getByNumber(String number) {
-        return accountRepository.findByAccountNumber(number).orElseThrow(
-                () -> new NotFoundException(Account.class, number)
-        );
+    public AccountResponse getByNumber(String number) {
+        Account account = getBy(number);
+
+        return accountMapper.mapTo(account);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<AccountResponse> getAllClientAccounts(String clientId) {
         List<Account> accounts = accountRepository.findAllByClientId(UUID.fromString(clientId));
+        checkEmptyListAccounts(accounts);
 
-        if(accounts.isEmpty()) {
-            throw new NotFoundException(Account.class);
-        }
         return accounts.stream()
                 .map(accountMapper::mapTo)
                 .toList();
@@ -79,25 +80,42 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     @Transactional
-    public List<Account> getAllActiveClientAccounts(UUID clientId) {
-        List<Account> accounts = accountRepository.findAllActiveAccounts(clientId);
+    public List<AccountResponse> getAllActiveClientAccounts(String clientId) {
+        List<Account> accounts = accountRepository.findAllActiveAccounts(UUID.fromString(clientId));
+        checkEmptyListAccounts(accounts);
 
-        if(accounts.isEmpty()) {
-            throw new NotFoundException(Account.class);
-        }
-        return accounts;
+        return accounts.stream()
+                .map(accountMapper::mapTo)
+                .toList();
     }
 
     @Override
     @Transactional
-    public void terminateAccount(UUID id) {
-        Account account = getById(id);
+    public void terminateAccount(String id) {
+        Account account = getBy(UUID.fromString(id));
         account.setActive(false);
     }
 
     @Override
     @Transactional
-    public void delete(UUID id) {
-        accountRepository.deleteById(id);
+    public void delete(String id) {
+        accountRepository.deleteById(UUID.fromString(id));
+    }
+
+    private Account getBy(UUID id) {
+        return accountRepository.findById(id).orElseThrow(
+                () -> new NotFoundException(Account.class, id)
+        );
+    }
+
+    private Account getBy(String number) {
+        return accountRepository.findByAccountNumber(number).orElseThrow(
+                () -> new NotFoundException(Account.class, number));
+    }
+
+    private void checkEmptyListAccounts(List<Account> accounts) {
+        if(accounts.isEmpty()) {
+            throw new NotFoundException(Account.class);
+        }
     }
 }

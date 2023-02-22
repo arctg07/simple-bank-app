@@ -6,8 +6,8 @@
     <groupId>com.bankapp</groupId>
     <artifactId>payment-service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>user-service</name>
-    <description>user-service</description>
+    <name>payment-service</name>
+    <description>payment-service</description>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
