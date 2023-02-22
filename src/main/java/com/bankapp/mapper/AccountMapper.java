@@ -21,8 +21,8 @@ public interface AccountMapper {
     @Mapping(target = "active", constant = "false")
     Account mapTo(AccountRequest accountRequest);
 
-    @Mapping(target = "openDate", expression = "java(LocalDateTime.ofInstant(account.getOpenDate()))")
-    @Mapping(target = "closeDate", expression = "java(LocalDateTime.ofInstant(account.getCloseDate()))")
+    @Mapping(target = "openDate", expression = "java(LocalDate.ofInstant(account.getOpenDate(), timezone.toZoneId())")
+    @Mapping(target = "closeDate", expression = "java(LocalDate.ofInstant(account.getCloseDate(), timezone.toZoneId())")
     AccountResponse mapTo(Account account);
 
     @AfterMapping
